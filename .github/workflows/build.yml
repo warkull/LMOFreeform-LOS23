@@ -1,0 +1,45 @@
+name: LMOFreeform Build
+
+on:
+  push:
+    branches:
+      - sixteen-qpr0
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Make gradlew executable
+        run: chmod +x gradlew
+
+      - name: Show Gradle version
+        run: ./gradlew --version
+
+      - name: Build
+        run: ./gradlew assembleDebug --stacktrace
+
+      - name: Find APKs
+        run: find . -type f -name "*.apk" -print
+
+      - name: Upload APKs
+        uses: actions/upload-artifact@v4
+        with:
+          name: LMOFreeform-debug
+          path: |
+            **/build/outputs/apk/**/*.apk
+            **/build/outputs/apk/*.apk
+          if-no-files-found: error
